@@ -1,4 +1,5 @@
 import {
+  HydrationBoundary,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
@@ -10,6 +11,7 @@ import {
   ScrollRestoration,
 } from '@remix-run/react';
 import { useState } from 'react';
+import { useDehydratedState } from '~/useDehydratedState';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -17,10 +19,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       defaultOptions: {
         queries: {
           retry: false,
+          staleTime: 5000,
         },
       },
     })
   );
+  const dehydratedState = useDehydratedState();
+
   return (
     <html lang="en">
       <head>
@@ -31,7 +36,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
+          <HydrationBoundary state={dehydratedState}>
             {children}
+          </HydrationBoundary>
         </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />

@@ -1,6 +1,15 @@
-import type { MetaFunction } from '@remix-run/node';
-import { useQuery } from '@tanstack/react-query';
+import { json, type LoaderFunction, type MetaFunction } from '@remix-run/node';
+import { QueryClient, dehydrate, useQuery } from '@tanstack/react-query';
 import { getData } from '~/getData';
+
+export const loader: LoaderFunction = async () => {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryFn: () => getData(),
+    queryKey: ['num'],
+  });
+  return json({ dehydratedState: dehydrate(queryClient) });
+};
 
 export const meta: MetaFunction = () => {
   return [
